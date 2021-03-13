@@ -7,7 +7,9 @@ import os
 from classification_net import *
 from upload_embedding_to_dataloader import *
 from train_classification_net import *
+from preprocess_data import *
 from torch import optim
+
 # from train_classification_net import *
 # from torch.utils.data import DataLoader
 # from torch.utils.data import TensorDataset
@@ -20,18 +22,19 @@ print(device)
 
 args = args()
 
-
-song_token = tokenizing (texts_csv_path= "bert toy example.csv" )
+songs_df =  preprocess_data("just_3_artist.csv", 512)
+song_token = tokenizing (songs_df.filtered_df_songs)
 song_token.tokenize_each_song()
-print("debug")
-embedding_songs = embedding(tokenizing_data= song_token.songs_dict, device= device)
+
+embedding_songs = embedding(tokenizing_data= song_token.songs_dict, device= device, embedding_csv_path= "embedding_3_artist.pt" )
 embedding_songs.data_embedding()
+if embedding_songs.embedding_csv_path is  None:
+    torch.save(embedding_songs.songs_features,  "embedding_3_artist.pt")
+
 embedding_dataloaders = upload_embedding_to_dataloader(song_token.df_songs, embedding_songs.songs_features, args )
 
-print ("debug")
-
-
 classification_net= classification_net(args)
+classification_net= classification_net.to(device)
 
 
 if args.weight_decay> 0 :

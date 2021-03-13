@@ -1,18 +1,17 @@
 from BERT_net import *
 import torch
+from handy_function import print_current_time
 
 class embedding():
 
 
-   def __init__(self, tokenizing_data, device):
+   def __init__(self, tokenizing_data, device, embedding_csv_path = None):
 
        ## Load pretrained model/tokenizer
        self.device = device
-
        self.bert =  BERT_net()
-       #self.bert_model.to(device)
-
        self.tokenizing_data = tokenizing_data
+       self.embedding_csv_path = embedding_csv_path
 
 
 
@@ -20,18 +19,31 @@ class embedding():
 
    def data_embedding(self):
 
-       self.songs_features = torch.tensor([])
+       if self.embedding_csv_path is not None:
+           self.songs_features = torch.load(self.embedding_csv_path)
 
-       self.bert.model.eval()
-       #self.training_data = self.training_data.to(self.device)
+       else:
 
-       for key, token_song  in self.tokenizing_data.items():
-           with torch.no_grad():
-               input_ids  =token_song.get('input_ids')
-               attention_mask =  token_song.get('attention_mask')
-               y_embedding = self.bert.model(input_ids = input_ids, token_type_ids=None, attention_mask= attention_mask)
-               song_features = y_embedding[0][:, 0, :]
-               self.songs_features =torch.cat((self.songs_features, song_features), dim=0)
+           self.songs_features = torch.tensor([]).to(self.device)
+           self.bert.model =self.bert.model.to(self.device)
+           self.bert.model.eval()
+
+           #self.training_data = self.training_data.to(self.device)
+           i = 0
+           print_current_time("starting embedding the data using Bert")
+
+           for key, token_song  in self.tokenizing_data.items():
+               with torch.no_grad():
+                   input_ids  =token_song.get('input_ids').to(self.device)
+                   attention_mask =  token_song.get('attention_mask').to(self.device)
+                   y_embedding = self.bert.model(input_ids = input_ids, token_type_ids=None, attention_mask= attention_mask)
+                   song_features = y_embedding[0][:, 0, :]
+                   self.songs_features =torch.cat((self.songs_features, song_features), dim=0)
+                   if  i%20 == 0:
+                       print_current_time("embed "+ str(i))
+                   i+=1
+
+           print_current_time("finish to embedd the data using Bert")
 
 
 

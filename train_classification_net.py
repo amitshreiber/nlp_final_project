@@ -1,6 +1,8 @@
 import pandas as pd
 from tqdm import tqdm
 import tensorflow as tf
+from handy_function import print_current_time
+import torch
 
 
 
@@ -15,7 +17,7 @@ class train_classification_net():
             #self.val_dataloader = val_dataloader
             self.epochs = args.num_epochs
             self.optimizer = optimizer
-            self.net = net
+            self.net = net.to(device)
             self.device = device
             #self.use_validation = True
             self.criterion = args.criterion
@@ -32,6 +34,8 @@ class train_classification_net():
 
              first_batch_train = True
 
+             print_current_time("starting to train classifier net")
+
              for epoch in range(self.epochs):
 
                     epoch_total_train_loss = 0.0
@@ -39,17 +43,19 @@ class train_classification_net():
                     self.net.train()
 
                     for x_train,y_train in tqdm(self.train_dataloader):
-                            #x_train = x_train.to(self.device)
+                            x_train = x_train.to(self.device)
+                            y_train = y_train.to(self.device)
+
 
 
                             self.optimizer.zero_grad()
 
-                            y_train = y_train.unsqueeze(dim=0)
+                            y_train = y_train.squeeze_()
+                            #y_train = torch.transpose(y_train, 0, 1)
 
                             y_pred = self.net(x_train)
-                            y_pred = y_pred.view(len(y_train), -1)
 
-                            loss =   self.criterion (y_pred, y_train)
+                            loss =   self.criterion (y_pred, y_train.long())
                             loss.backward()
 
                             epoch_total_train_loss += loss
@@ -71,12 +77,12 @@ class train_classification_net():
 
 
         def print_metrics(self, epoch, Train):
-                if epoch % 1 == 0:
+                if epoch % 10 == 0:
                     print()
                     print("******************************")
 
                     if Train:
-                        #print_current_time("Training metrics for epoch " + str(epoch) + ":\n")
+                        print_current_time("Training metrics for epoch " + str(epoch) + ":\n")
                         print("Loss value: ", self.train_loss[epoch])
 
                     # else:

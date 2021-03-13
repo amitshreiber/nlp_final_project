@@ -12,7 +12,7 @@ class upload_embedding_to_dataloader():
        self.test_ratio = args.test_ratio
        self.val_ratio = args.validation_ratio
 
-       self.training_batch_size = args.tr_batch_size
+       self.tr_batch_size = args.tr_batch_size
        self.val_batch_size = args.val_batch_size
 
 
@@ -30,10 +30,14 @@ class upload_embedding_to_dataloader():
                                                                                     random_state=42
                                                                                  )
 
-       self.tr_dataloader= TensorDataset(train_features, torch.from_numpy(train_labels) )
+       tr_dataset= TensorDataset(train_features, torch.from_numpy(train_labels) )
+       self.tr_dataloader =   DataLoader(tr_dataset, batch_size=self.tr_batch_size)
+
+
 
        if self.val_ratio> 0:
-           self.val_dataloader = TensorDataset(val_features, torch.from_numpy(val_labels))
+          val_dataset= TensorDataset(val_features, torch.from_numpy(val_labels))
+          self.val_dataloader = DataLoader(val_dataset, batch_size=self.val_batch_size)
 
 
 

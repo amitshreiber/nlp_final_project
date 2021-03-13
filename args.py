@@ -9,8 +9,8 @@ import torch.nn.functional
 class args:
 
     def __init__(self,  hidden_dim = 50, validation_ratio = 0, test_ratio = 0.0001,
-                  tr_batch_size =3, val_batch_size = 128, num_epochs= 10,
-                  lr = 0.0005, weight_decay= 1e-4 ):
+                  tr_batch_size =256, val_batch_size = 128, num_epochs= 1000,
+                  lr = 0.001, weight_decay=  0 ):
 
 
 

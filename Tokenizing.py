@@ -2,14 +2,15 @@ from transformers import BertTokenizer
 import pandas as pd
 import torch
 import re
+from handy_function import print_current_time
 
 
 
 class tokenizing:
 
-    def __init__(self, texts_csv_path ):
+    def __init__(self, df_songs):
 
-        self.df_songs = pd.read_csv(texts_csv_path, header= 0)
+        self.df_songs = df_songs
         self.max_embed_batch_len =  512
         self.songs_dict = {}
 
@@ -50,55 +51,33 @@ class tokenizing:
          return encoded_dict
 
 
-    # def choose_name(self, encoded_dict):
-    #     # Add the encoded sentence to the list.
-    #  input_ids = (encoded_dict['input_ids'])
-    #
-    #     # And its attention mask (simply differentiates padding from non-padding).
-    #  attention_masks=(encoded_dict['attention_mask'])
-    #
-    #     # Convert the lists into tensors.
-    #
-    # input_ids = torch.cat(input_ids, dim=0)
-    # attention_masks = torch.cat(attention_masks, dim=0)
-    # labels = torch.tensor(labels)
-    #
-    # # Print sentence 0, now as a list of IDs.
-    # print('Original: ', sentences[0])
-    # print('Token IDs:', input_ids[0])
-
-
-
 
     def tokenize_each_song(self):
 
-
-
+        print_current_time("starting tokenizing process")
 
         for i in range(len(self.df_songs)):
 
-
-           print(i)
            key = ( self.df_songs.loc[i, "Artist"], self.df_songs.loc[i, "Song_name"])
 
            batch_lyrics= self.df_songs.loc[i, "Lyrics"]
-           batch_lyrics = re.sub("[\(\[].*?[\)\]]", "", batch_lyrics)
 
            token_batch_lyrics =  self.tokenizing_batch(batch_lyrics)
            token_batch_lyrics_data = token_batch_lyrics.data
 
            token_batch_lyrics_data['Lyrics'] = batch_lyrics
-           #token_batch_lyrics_data['label']  =   self.df_songs.loc[i, "label"]
-
 
            self.songs_dict[key] = token_batch_lyrics_data
 
+        print_current_time("finished tokenizing process")
 
-           print("debug")
 
-           # self.df_songs.loc[i, "token_song_input_ids" ] =  token_song_data  ['input_ids']
-           # self.df_songs.loc[i, "token_song_type_ids"] = token_song_data['token_type_ids']
-           # self.df_songs.loc[i, "token_song_attention_mask"] = token_song_data['attention_mask']
+
+
+
+
+
+
 
 
 
