@@ -22,9 +22,13 @@ class upload_embedding_to_dataloader():
 
    def create_dataloader(self):
 
+      # x= self.emmbeding_songs.clone().detach().cpu()
+
+
        train_features, test_features, train_labels, test_labels = train_test_split(self.emmbeding_songs, self.labels,  test_size = self.test_ratio, random_state = 42)
+
        if self.val_ratio > 0:
-        train_features, val_features, train_labels, val_labels = train_test_split(  train_features,                                                                                self.labels,
+         train_features, val_features, train_labels, val_labels = train_test_split(  train_features,
                                                                                     train_labels,
                                                                                     test_size= self.val_ratio,
                                                                                     random_state=42

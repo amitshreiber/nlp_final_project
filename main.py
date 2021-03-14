@@ -43,5 +43,6 @@ else:
     adam_optimizer = optim.Adam(classification_net.parameters(), lr=args.lr)
 
 
-training_net =  train_classification_net(train_dataloader= embedding_dataloaders.tr_dataloader, optimizer= adam_optimizer, device= device, net= classification_net, args= args)
+training_net =  train_classification_net(train_dataloader= embedding_dataloaders.tr_dataloader, optimizer= adam_optimizer, device= device,
+                                         net= classification_net, args= args, val_dataloader= embedding_dataloaders.val_dataloader)
 

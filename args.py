@@ -8,8 +8,8 @@ import torch.nn.functional
 
 class args:
 
-    def __init__(self,  hidden_dim = 50, validation_ratio = 0, test_ratio = 0.0001,
-                  tr_batch_size =256, val_batch_size = 128, num_epochs= 1000,
+    def __init__(self,  hidden_dim = 50, validation_ratio = 0.2, test_ratio = 0.2,
+                  tr_batch_size =256, val_batch_size = 256, num_epochs= 1000,
                   lr = 0.001, weight_decay=  0 ):
 
 
@@ -37,6 +37,11 @@ class args:
          self.lr = lr
          self.weight_decay = weight_decay
          self.criterion =  torch.nn.CrossEntropyLoss()
+
+    #NN early stopping args
+         self.early_stop_n = 3
+         self.early_stop_loss_value = 0
+
 
     ## classes
          self.class_number = 19
