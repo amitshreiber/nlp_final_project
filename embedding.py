@@ -9,12 +9,12 @@ class Embedding:
         self.device = device
         self.bert = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
         self.tokenizing_data = tokenizing_data
-        self.embedding_csv_path = embedding_csv_path
+        self.embedding_path = embedding_csv_path
         self.songs_features = torch.tensor([])
 
     def data_embedding(self):
-        if self.embedding_csv_path is not None:
-            self.songs_features = torch.load(self.embedding_csv_path)
+        if self.embedding_path is not None:
+            self.songs_features = torch.load(self.embedding_path)
         else:
             self.songs_features = torch.tensor([]).to(self.device)
             self.bert.model = self.bert.model.to(self.device)

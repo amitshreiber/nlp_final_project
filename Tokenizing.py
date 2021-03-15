@@ -1,21 +1,22 @@
 from transformers import BertTokenizer
 from handy_function import print_current_time
-
+import torch
 
 class Tokenizing:
     def __init__(self, df_songs):
         self.df_songs = df_songs
         self.max_embed_batch_len = 512
-        self.songs_dict = {}
-        self.create_tokenizer_instance()
+        self.songs_dict = dict()
         self.tokenizer = None
+        self.tokenizing_path = None
+        self.create_tokenizer_instance()
 
     def create_tokenizer_instance(self):
         # Load the BERT tokenizer.
         print('Loading BERT tokenizer...')
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
 
-    def tokenizing_batch (self, batch):
+    def tokenizing_batch(self, batch):
         """
         For every single song
 
@@ -38,23 +39,28 @@ class Tokenizing:
         )
         return encoded_dict
 
-    def tokenize_each_song(self):
+    def tokenize_each_song(self, tokenizing_path=None):
         """
         For all songs
 
         """
         print_current_time("starting tokenizing process")
 
-        for i in range(len(self.df_songs)):
-            key = (self.df_songs.loc[i, "Artist"], self.df_songs.loc[i, "Song_name"])
+        # if saved tokenizing
+        if tokenizing_path is not None:
+            self.songs_dict = torch.load(tokenizing_path)
+            self.tokenizing_path = tokenizing_path
+        else:
+            for i in range(len(self.df_songs)):
+                key = (self.df_songs.loc[i, "Artist"], self.df_songs.loc[i, "Song_name"])
 
-            batch_lyrics = self.df_songs.loc[i, "Lyrics"]
+                batch_lyrics = self.df_songs.loc[i, "Lyrics"]
 
-            token_batch_lyrics = self.tokenizing_batch(batch_lyrics)
-            token_batch_lyrics_data = token_batch_lyrics.data
+                token_batch_lyrics = self.tokenizing_batch(batch_lyrics)
+                token_batch_lyrics_data = token_batch_lyrics.data
 
-            token_batch_lyrics_data['Lyrics'] = batch_lyrics
+                token_batch_lyrics_data['Lyrics'] = batch_lyrics
 
-            self.songs_dict[key] = token_batch_lyrics_data
+                self.songs_dict[key] = token_batch_lyrics_data
 
         print_current_time("finished tokenizing process")
