@@ -102,7 +102,7 @@ def diff_letters(a,b):
     return sum ( a[i] == b[i] for i in range(min(len(a), len(b))) )
 
 if __name__ == '__main__':
-    all_songs_no_dup = pd.read_csv(r"C:\Anat\University\NLP\Project\all_songs_no_dup.csv")
+    all_songs_no_dup = pd.read_csv(r"/Project/all_songs_no_dup.csv")
     # all_songs_no_dup = all_songs_no_dup.drop(['Unnamed: 0', 'Unnamed: 0.1', 'Unnamed: 0.1.1', 'Unnamed: 0.1.1.1', 'Unnamed: 0.1.1.1.1'], axis=1)
     all_songs_no_dup.sort_values(by=['artist', 'title'], inplace=True)
 
