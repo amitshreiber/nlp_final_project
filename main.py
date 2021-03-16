@@ -16,19 +16,19 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 
 # pre-process data
-data_file = os.path.join(ROOT_DIR, r'data\all_songs_nineteen_artists.csv')
+data_file = os.path.join(ROOT_DIR, r'data\songs_five_artists.csv')
 songs_df = PreprocessData(data_file, 512)
 
 # tokenize songs
-tokenizing_path = os.path.join(PARAMETERS_DIR, "all_songs_token.pt")
+tokenizing_path = os.path.join(PARAMETERS_DIR, "songs_five_artists_token.pt")
 song_token = Tokenizing(songs_df.filtered_df_songs)
-song_token.tokenize_each_song(tokenizing_path=tokenizing_path)
+song_token.tokenize_each_song()
 if song_token.tokenizing_path is None:
     torch.save(song_token.songs_dict, tokenizing_path)
 
 # song embeddings
-embedding_path = os.path.join(PARAMETERS_DIR, "embedding_all_artist.pt")
-embedding_songs = Embedding(tokenizing_data=song_token.songs_dict, device=device, embedding_path=embedding_path)
+embedding_path = os.path.join(PARAMETERS_DIR, "embedding_songs_five_artists.pt")
+embedding_songs = Embedding(tokenizing_data=song_token.songs_dict, device=device)
 embedding_songs.data_embedding()
 if embedding_songs.embedding_path is None:
     torch.save(embedding_songs.songs_features,  embedding_path)
@@ -47,6 +47,6 @@ training_net = TrainClassificationNet(train_dataloader=embedding_dataloaders.tr_
                                       val_dataloader=embedding_dataloaders.val_dataloader)
 
 # plot figures
-plot_accuracies(training_net.train_acc, training_net.val_acc, 'classification')
-plot_loss(training_net.train_loss, 'classification')
+plot_accuracies(training_net.train_acc, training_net.val_acc, 'classification_five_artists')
+plot_loss(training_net.train_loss, 'classification_five_artists')
 a=1

@@ -130,4 +130,10 @@ all_songs_no_dup_new.to_excel(r"C:\Anat\University\NLP\Project\all_songs_no_dup_
 
 df_songs = pd.read_excel(r"C:\Anat\University\NLP\Project\all_songs_no_dup.xlsx")
 artist_count['max_words'] = (df_songs['words_len'] > 512).sum()
-df_songs
+
+import os
+ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))  # This is your Project Root
+data_file = os.path.join(r'C:\Anat\University\NLP\nlp_final_project', r'data\all_songs_nineteen_artists.csv')
+df_songs = pd.read_csv(data_file)
+df_songs_five_artists = df_songs[df_songs.Artist.isin(['Alice Cooper', 'Beck', 'Bee Gees', 'Bob Dylan', 'Bon Jovi']).values].copy()
+df_songs_five_artists.to_csv(r'C:\Anat\University\NLP\nlp_final_project\data\songs_five_artists.csv')
