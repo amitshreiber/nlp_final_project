@@ -1,32 +1,38 @@
-import torch
 import torch.nn.functional
+import os
 
+"""
+================
+constants
+================
+"""
 
-class args:
-    def __init__(self, hidden_dim=50, validation_ratio=0.2, test_ratio=0.2,
-              tr_batch_size=256, val_batch_size=256, num_epochs=1000,
-              lr=0.001, weight_decay=0):
+# NN architecture args
+HIDDEN_DIM = 50
 
-        # Train-test split args
-        self.test_ratio = test_ratio
-        self.validation_ratio = validation_ratio
+# Train-test split args
+VALIDATION_RATIO = 0.2
+TEST_RATIO = 0.2
 
-        # NN architecture args
-        self.hidden_dim = hidden_dim
+# NN training args
+TR_BATCH_SIZE = 256
+VAL_BATCH_SIZE = 256
+NUM_EPOCHS = 1000
 
-        # NN training args
-        self.tr_batch_size = tr_batch_size
-        self.val_batch_size = val_batch_size
-        self.num_epochs = num_epochs
+# NN back propagation args
+LR = 0.001
+WEIGHT_DECAY = 0
+CRITERION = torch.nn.CrossEntropyLoss()
 
-        # NN backpropagation args
-        self.lr = lr
-        self.weight_decay = weight_decay
-        self.criterion = torch.nn.CrossEntropyLoss()
+# NN early stopping args
+EARLY_STOP_N = 3
+EARLY_STOP_LOSS_VALUE = 0
 
-        # NN early stopping args
-        self.early_stop_n = 3
-        self.early_stop_loss_value = 0
+# classes
+CLASS_NUMBER = 19
 
-        # classes
-        self.class_number = 19
+# directories
+ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))  # This is your Project Root
+PARAMETERS_DIR = os.path.join(ROOT_DIR, 'parameters')
+FIGURES_DIR = os.path.join(ROOT_DIR, 'figures')
+

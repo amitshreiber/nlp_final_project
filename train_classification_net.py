@@ -2,92 +2,90 @@
 from tqdm import tqdm
 from handy_function import print_current_time
 import torch
+import time
+from handy_function import timeSince, calculate_accuracy, save_model
+from args import CRITERION, EARLY_STOP_N, EARLY_STOP_LOSS_VALUE, NUM_EPOCHS, VALIDATION_RATIO
 
 
 class TrainClassificationNet:
-    def __init__(self, train_dataloader, net, args,  optimizer, device, val_dataloader = None ):
+    def __init__(self, train_dataloader, net, optimizer, device, val_dataloader=None, save=True):
 
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
-        self.epochs = args.num_epochs
         self.optimizer = optimizer
         self.net = net.to(device)
         self.device = device
-        # self.use_validation = True
-        self.criterion = args.criterion
+        self.save = save
+        self.use_validation = VALIDATION_RATIO > 0
 
-        self.early_stop_n = args.early_stop_n
-        self.early_stop_loss_value = args.early_stop_loss_value
+        self.train_loss = [None] * NUM_EPOCHS
+        self.val_loss = [None] * NUM_EPOCHS
 
-        self.use_validation = False
-        if args.validation_ratio > 0:
-            self.use_validation = True
-
-        self.train_loss = [None] * self.epochs
-        self.val_loss = [None] * self.epochs
-
-        self.train_acc = [None] * self.epochs
-        self.val_acc = [None] * self.epochs
+        self.train_acc = [None] * NUM_EPOCHS
+        self.val_acc = [None] * NUM_EPOCHS
 
         self.train_net()
 
     def train_net(self):
-        first_batch_train = True
+        start = time.time()
         print_current_time("starting to train classifier net")
+        epoch_total_train_loss = 0.0  # Reset every epoch
 
-        for epoch in range(self.epochs):
-
-            epoch_total_train_loss = 0.0
-            epoch_total_train_acc = 0.0
-
-            self.net.train()
-
+        for epoch in range(NUM_EPOCHS):
             for x_train, y_train in tqdm(self.train_dataloader):
-                x_train = x_train.to(self.device)
-                y_train = y_train.to(self.device)
+                self.net.train()
+                x_train, y_train = x_train.to(self.device), y_train.to(self.device)
 
+                # zero the parameter gradients
                 self.optimizer.zero_grad()
 
+                # forward + backward + optimize
                 y_train = y_train.squeeze_()
-                # y_train = torch.transpose(y_train, 0, 1)
-
                 y_pred = self.net(x_train)
-
-                loss = self.criterion(y_pred, y_train.long())
+                loss = CRITERION(y_pred, y_train.long())
                 loss.backward()
-
-                epoch_total_train_loss += loss
-
-                epoch_total_train_acc += self.calculate_accuracy(y_pred, y_train)
-
-                if first_batch_train:
-                    first_batch_train = False
-                    print("\nThe loss value for the first batch in the first epoch: ", loss.item(), "\n")
-
                 self.optimizer.step()
 
-            self.update_train_metrics(epoch, epoch_total_train_loss, epoch_total_train_acc)
-            self.print_metrics(epoch, Train=True)
+                epoch_total_train_loss += loss.item()
 
-            if self.use_validation:
-                self.check_validation(epoch)
+            # loss
+            self.train_loss[epoch] = epoch_total_train_loss / len(self.train_dataloader)
+            epoch_total_train_loss = 0.0
 
-                if self.early_stopping_check(epoch):
-                    break
+            # accuracy
+            epoch_total_train_acc = self.evaluate(self.train_dataloader)
+            self.train_acc[epoch] = epoch_total_train_acc
+            test_accuracy = self.evaluate(self.val_dataloader)
+            self.val_acc[epoch] = test_accuracy
 
-    def update_train_metrics(self, epoch, epoch_total_train_loss,  epoch_total_train_acc):
-        self.train_loss[epoch] = epoch_total_train_loss.item() / len(self.train_dataloader)
-        self.train_acc[epoch] = epoch_total_train_acc / len(self.train_dataloader)
+            self.print_metrics(epoch, start)
+            # print(f'Epoch #{epoch}:\n'
+            #       f'Last batch Loss: {loss.item():.4f}\n'
+            #       f'Train accuracy: {epoch_total_train_acc:.3f}\n'
+            #       f'Test accuracy: {test_accuracy:.3f}\n'
+            #       f'Time elapsed (remaining): {timeSince(start, (epoch+1) / NUM_EPOCHS)}')
 
-    def print_metrics(self, epoch, Train):
+            if self.save:
+                save_model(self.net, epoch)
+
+            # if self.use_validation:
+            #     self.check_validation(epoch)
+            #
+            #     if self.early_stopping_check(epoch):
+            #         break
+
+    def print_metrics(self, epoch, start, train=True):
         if epoch % 20 == 0:
             print()
             print("******************************")
 
-            if Train:
-                print_current_time("Training metrics for epoch " + str(epoch) + ":\n")
-                print("Loss value: ", self.train_loss[epoch])
+            if train:
                 print("accuracy value: ", self.train_acc[epoch])
+                print(f'Epoch #{epoch+1}:\n'
+                      f'Train Loss: {self.train_loss[epoch]:.4f}\n'
+                      f'Train accuracy: {self.train_acc[epoch]:.3f}\n'
+                      f'Validation accuracy: {self.val_acc[epoch]:.3f}\n'
+                      f'Time elapsed (remaining): {timeSince(start, (epoch+1) / NUM_EPOCHS)}')
 
             else:
                 self.epoch_before_eraly_stop = epoch
@@ -96,13 +94,13 @@ class TrainClassificationNet:
                 print("accuracy value: ", self.val_acc[epoch])
 
     def early_stopping_check(self, curr_epoch):
-        if curr_epoch < self.early_stop_n - 1:
+        if curr_epoch < EARLY_STOP_N - 1:
             return False
 
         loss_improved = False
 
-        for i in range(0, self.early_stop_n):
-            if self.val_loss[curr_epoch - i] - self.val_loss[curr_epoch - i - 1] <= self.early_stop_loss_value:
+        for i in range(0, EARLY_STOP_N):
+            if self.val_loss[curr_epoch - i] - self.val_loss[curr_epoch - i - 1] <= EARLY_STOP_LOSS_VALUE:
                 loss_improved = True
                 return False
 
@@ -110,36 +108,23 @@ class TrainClassificationNet:
             print("made early stopping after epoch: ", curr_epoch)
             return True
 
-    def check_validation(self, epoch):
-        self.val_loss[epoch], self.val_acc[epoch] = self.get_val_metrics()
-        self.print_metrics(epoch, Train=False)
-
-    def get_val_metrics(self):
-        epoch_total_val_acc = 0.0
-        epoch_total_val_loss = 0.0
-        val_dataloader_length = len(self.val_dataloader)
-
+    def evaluate(self, dataloader):
+        total = 0
+        correct = 0
         self.net.eval()
+        with torch.no_grad():
+            for inputs, labels in tqdm(dataloader):
+                inputs, labels = inputs.to(self.device), labels.to(self.device)
+                labels = labels.squeeze_()
+                outputs = self.net(inputs)
+                current_correct, current_total = calculate_accuracy(outputs, labels)
+                correct += current_correct
+                total += current_total
 
-        for x_val, y_val in tqdm(self.val_dataloader):
-            x_val = x_val.to(self.device)
-            y_val = y_val.to(self.device)
-            y_val = y_val.squeeze_()
+        accuracy = correct / total
+        return accuracy
 
-            with torch.no_grad():
-                y_val_predicted = self.net(x_val)
-                loss = self.criterion(y_val_predicted, y_val.long())
-                epoch_total_val_loss += loss
 
-                epoch_total_val_acc += self.calculate_accuracy(y_val_predicted, y_val)
-
-        epoch_val_loss = epoch_total_val_loss.item() / val_dataloader_length
-        epoch_val_acc = epoch_total_val_acc / val_dataloader_length
-
-        return epoch_val_loss, epoch_val_acc
-
-    def calculate_accuracy(self, y_pred, y_train):
-        pass
 
 
 
