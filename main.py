@@ -49,3 +49,4 @@ training_net = TrainClassificationNet(train_dataloader=embedding_dataloaders.tr_
 # plot figures
 plot_accuracies(training_net.train_acc, training_net.val_acc, 'classification_five_artists')
 plot_loss(training_net.train_loss, 'classification_five_artists')
+a=1
