@@ -4,12 +4,12 @@ from pytorch_transformers import BertModel
 
 
 class Embedding:
-    def __init__(self, tokenizing_data, device, embedding_csv_path=None):
+    def __init__(self, tokenizing_data, device, embedding_path=None):
         # Load pretrained model/tokenizer
         self.device = device
-        self.bert = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
+        self.bert_model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True).to(self.device)
         self.tokenizing_data = tokenizing_data
-        self.embedding_path = embedding_csv_path
+        self.embedding_path = embedding_path
         self.songs_features = torch.tensor([])
 
     def data_embedding(self):
@@ -17,8 +17,7 @@ class Embedding:
             self.songs_features = torch.load(self.embedding_path)
         else:
             self.songs_features = torch.tensor([]).to(self.device)
-            self.bert.model = self.bert.model.to(self.device)
-            self.bert.model.eval()
+            self.bert_model.eval()
 
             # self.training_data = self.training_data.to(self.device)
             i = 0
@@ -28,7 +27,7 @@ class Embedding:
                 with torch.no_grad():
                     input_ids = token_song.get('input_ids').to(self.device)
                     attention_mask = token_song.get('attention_mask').to(self.device)
-                    y_embedding = self.bert.model(input_ids=input_ids, token_type_ids=None,
+                    y_embedding = self.bert_model(input_ids=input_ids, token_type_ids=None,
                                                   attention_mask=attention_mask)
                     song_features = y_embedding[0][:, 0, :]
                     self.songs_features = torch.cat((self.songs_features, song_features), dim=0)
