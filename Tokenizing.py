@@ -8,7 +8,6 @@ class Tokenizing:
         self.max_embed_batch_len = 512
         self.songs_dict = dict()
         self.tokenizer = None
-        self.tokenizing_path = None
         self.create_tokenizer_instance()
 
     def create_tokenizer_instance(self):
@@ -62,5 +61,9 @@ class Tokenizing:
                 token_batch_lyrics_data['Lyrics'] = batch_lyrics
 
                 self.songs_dict[key] = token_batch_lyrics_data
+
+
+            
+
 
         print_current_time("finished tokenizing process")
