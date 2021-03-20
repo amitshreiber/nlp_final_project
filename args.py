@@ -11,7 +11,8 @@ constants
 #HIDDEN_DIM = 50
 INPUT_SIZE = 768
 CLASS_NUMBER = 19
-p= 0.5
+p1= 0.5
+p2 = 0.25
 
 
 # Train-test split args
@@ -19,18 +20,18 @@ VALIDATION_RATIO = 0.2
 TEST_RATIO = 0.2
 
 # NN training args
-TR_BATCH_SIZE = 256
-VAL_BATCH_SIZE = 256
+TR_BATCH_SIZE =  512
+VAL_BATCH_SIZE = 512
 NUM_EPOCHS = 10000000
 
 # NN back propagation args
-LR = 0.01
-WEIGHT_DECAY = 5e-4
+LR = 0.00001
+WEIGHT_DECAY = 0.005
 CRITERION = torch.nn.CrossEntropyLoss()
 
 # NN early stopping args
-EARLY_STOP_N = 5
-EARLY_STOP_LOSS_VALUE = 0
+EARLY_STOP_N = 3
+EARLY_STOP_ACC_VALUE = 0
 
 
 

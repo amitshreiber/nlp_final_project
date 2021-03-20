@@ -4,11 +4,11 @@ from handy_function import print_current_time
 import torch
 import time
 from handy_function import timeSince,save_model, calculate_accuracy
-from args import CRITERION, EARLY_STOP_N, EARLY_STOP_LOSS_VALUE, NUM_EPOCHS, VALIDATION_RATIO
+from args import CRITERION, EARLY_STOP_N, EARLY_STOP_ACC_VALUE, NUM_EPOCHS, VALIDATION_RATIO
 
 
 class TrainClassificationNet:
-    def __init__(self, train_dataloader, net, optimizer, device, val_dataloader=None, save=True):
+    def __init__(self, train_dataloader, net, optimizer, device, val_dataloader=None, save= False):
 
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
@@ -58,6 +58,7 @@ class TrainClassificationNet:
             if self.use_validation:
                 # val metrics
                 self.val_acc[epoch], self.val_loss[epoch] = self.evaluate(self.val_dataloader, True)
+                self.print_metrics(epoch, start, False )
 
                 #early stop check
                 if self.early_stopping_check(epoch):
@@ -83,33 +84,30 @@ class TrainClassificationNet:
             print("******************************")
 
             if train:
-                print("accuracy value: ", self.train_acc[epoch])
                 print(f'Epoch #{epoch+1}:\n'
                       f'Train Loss: {self.train_loss[epoch]:.4f}\n'
                       f'Train accuracy: {self.train_acc[epoch]:.3f}\n'
-                      f'Validation accuracy: {self.val_acc[epoch]:.3f}\n'
                       f'Time elapsed (remaining): {timeSince(start, (epoch+1) / NUM_EPOCHS)}')
 
             else:
                 self.epoch_before_early_stop = epoch
-                print_current_time("Validation metrics for epoch " + str(epoch) + ":\n")
-                print("Loss value: ", self.val_loss[epoch])
-                print("accuracy value: ", self.val_acc[epoch])
+                print(f'Epoch #{epoch + 1}:\n'
+                      f'Validation Loss: {self.val_loss[epoch]:.4f}\n'
+                      f'Validation accuracy: {self.val_acc[epoch]:.3f}\n' )
 
     def early_stopping_check(self, curr_epoch):
-        if curr_epoch < EARLY_STOP_N - 1:
+        if curr_epoch < EARLY_STOP_N :
             return False
 
-        loss_improved = False
+
 
         for i in range(0, EARLY_STOP_N):
-            if self.val_loss[curr_epoch - i] - self.val_loss[curr_epoch - i - 1] <= EARLY_STOP_LOSS_VALUE:
-                loss_improved = True
+            if self.val_acc[curr_epoch - i] - self.val_acc[curr_epoch - i - 1] >= EARLY_STOP_ACC_VALUE:
                 return False
 
-        if not loss_improved:
-            print("made early stopping after epoch: ", curr_epoch)
-            return True
+
+        print("made early stopping after epoch: ", curr_epoch)
+        return True
 
     def evaluate(self, dataloader, val = False):
 
