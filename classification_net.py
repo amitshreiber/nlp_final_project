@@ -1,22 +1,22 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from args import CLASS_NUMBER, INPUT_SIZE, p1, p2
+
 
 
 class ClassificationNet(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, args):
         super(ClassificationNet, self).__init__()
-        self.fc1 = torch.nn.Linear(INPUT_SIZE, 256)
-        self.BN1 = torch.nn.BatchNorm1d(256)
-        self.dropout_1 = nn.Dropout(p1)
+        self.fc1 = torch.nn.Linear(args.input_size, args.fc1_output_size)
+        self.BN1 = torch.nn.BatchNorm1d( args.fc1_output_size)
+        self.dropout_1 = nn.Dropout(args.p1)
 
-        self.fc2 = torch.nn.Linear(256,64)
-        self.BN2 = torch.nn.BatchNorm1d(64)
-        self.dropout_2 = nn.Dropout(p2)
+        self.fc2 = torch.nn.Linear( args.fc1_output_size, args.fc2_output_size)
+        self.BN2 = torch.nn.BatchNorm1d( args.fc2_output_size)
+        self.dropout_2 = nn.Dropout(args.p2)
 
 
-        self.fc3 = torch.nn.Linear(64, CLASS_NUMBER)
+        self.fc3 = torch.nn.Linear( args.fc2_output_size, args.class_number)
 
 
 

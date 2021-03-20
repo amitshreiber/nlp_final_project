@@ -2,13 +2,14 @@ import torch
 from Tokenizing import Tokenizing
 from embedding import Embedding
 import os
-from classification_net import ClassificationNet
 from upload_embedding_to_dataloader import upload_embedding_to_dataloader
-from train_classification_net import TrainClassificationNet
 from preprocess_data import PreprocessData
-from torch import optim
 from plots import plot_accuracies, plot_loss
-from args import ROOT_DIR, PARAMETERS_DIR, WEIGHT_DECAY, LR
+from args import ROOT_DIR, PARAMETERS_DIR
+from args_comb import ArgsComb
+from trained_classification_nets import   TrainedClassificationNets
+
+
 
 # set device to GPU
 print("conda environment:", os.environ['CONDA_DEFAULT_ENV'], "\n \n")
@@ -34,22 +35,18 @@ embedding_songs.data_embedding()
 if embedding_songs.embedding_path is None:
     torch.save(embedding_songs.songs_features,  PARAMETERS_DIR + "\\embedding_all_artist.pt" )
 
-# create dataloader from embeddings
-embedding_dataloaders = upload_embedding_to_dataloader(song_token.df_songs, embedding_songs.songs_features)
+
+args_comb = ArgsComb()
+for args in args_comb:
+
+    embedding_dataloaders = upload_embedding_to_dataloader(args, song_token.df_songs, embedding_songs.songs_features)
+
+
 
 # train classification net
-classification_net = ClassificationNet().to(device)
-if WEIGHT_DECAY > 0:
-    adam_optimizer = optim.Adam(classification_net.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
-else:
-    adam_optimizer = optim.Adam(classification_net.parameters(), lr=LR)
-
-
-training_net = TrainClassificationNet(train_dataloader=embedding_dataloaders.tr_dataloader, optimizer=adam_optimizer,
-                                      device=device, net=classification_net,
-                                      val_dataloader=embedding_dataloaders.val_dataloader)
+    classification_nets = TrainedClassificationNets(args,device, embedding_dataloaders )
 
 # plot figures
-plot_accuracies(training_net.train_acc, training_net.val_acc, 'all_artists')
-plot_loss(training_net.train_loss, training_net.val_loss, 'all_artists')
+# plot_accuracies(training_net.train_acc, training_net.val_acc, 'all_artists')
+# plot_loss(training_net.train_loss, training_net.val_loss, 'all_artists')
 
