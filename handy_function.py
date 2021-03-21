@@ -3,8 +3,7 @@ import torch
 import math
 import os
 import numpy as np
-from args import FIGURES_DIR, PARAMETERS_DIR
-
+from args import PARAMETERS_DIR
 
 
 def print_current_time(output=''):
@@ -37,6 +36,15 @@ def calculate_accuracy(outputs, labels):
     total = labels.size(0)
     correct = (pred == labels).sum().item()
     return correct, total
+
+
+def top_k_accuracy(outputs, labels, k):
+    top_p, top_class = outputs.topk(k, dim=1)
+    top_class = top_class.t()
+    correct = top_class.eq(labels.view(1, -1).expand_as(top_class))
+    total = labels.size(0)
+    correct_k = correct.float().sum().item()
+    return correct_k, total
 
 
 def asMinutes(s):
