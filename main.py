@@ -24,15 +24,15 @@ tokenizing_path = os.path.join(PARAMETERS_DIR, "all_songs_token.pt")
 song_token = Tokenizing(df_songs= songs_df.filtered_df_songs )
 song_token.tokenize_each_song(tokenizing_path)
 
-if  tokenizing_path is None:
-    torch.save(song_token.songs_dict, PARAMETERS_DIR + "\\all_songs_token.pt" )
+if song_token.tokenizing_path is None:
+    torch.save(song_token.songs_dict, tokenizing_path)
 
 # song embeddings
-embedding_path = os.path.join(PARAMETERS_DIR, "embedding_all_artist.pt")
-embedding_songs = Embedding(tokenizing_data=song_token.songs_dict, device=device, embedding_path= embedding_path)
+embedding_path = os.path.join(PARAMETERS_DIR, "embedding_all_artist_layer_11.pt")
+embedding_songs = Embedding(tokenizing_data=song_token.songs_dict, device=device, embedding_path=embedding_path)
 embedding_songs.data_embedding()
 if embedding_songs.embedding_path is None:
-    torch.save(embedding_songs.songs_features,  PARAMETERS_DIR + "\\embedding_all_artist.pt" )
+    torch.save(embedding_songs.songs_features,  embedding_path)
 
 # create dataloader from embeddings
 embedding_dataloaders = upload_embedding_to_dataloader(song_token.df_songs, embedding_songs.songs_features)
@@ -47,9 +47,10 @@ else:
 
 training_net = TrainClassificationNet(train_dataloader=embedding_dataloaders.tr_dataloader, optimizer=adam_optimizer,
                                       device=device, net=classification_net,
-                                      val_dataloader=embedding_dataloaders.val_dataloader)
+                                      val_dataloader=embedding_dataloaders.val_dataloader, k=3)
 
 # plot figures
 plot_accuracies(training_net.train_acc, training_net.val_acc, 'all_artists')
+plot_accuracies(training_net.train_acc_k, training_net.val_acc_k, 'all_artists top-k')
 plot_loss(training_net.train_loss, training_net.val_loss, 'all_artists')
 

@@ -9,6 +9,7 @@ class Tokenizing:
         self.songs_dict = dict()
         self.tokenizer = None
         self.create_tokenizer_instance()
+        self.tokenizing_path = None
 
     def create_tokenizer_instance(self):
         # Load the BERT tokenizer.

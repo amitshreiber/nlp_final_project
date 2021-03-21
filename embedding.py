@@ -29,7 +29,7 @@ class Embedding:
                     attention_mask = token_song.get('attention_mask').to(self.device)
                     y_embedding = self.bert_model(input_ids=input_ids, token_type_ids=None,
                                                   attention_mask=attention_mask)
-                    song_features = y_embedding[0][:, 0, :]
+                    song_features = y_embedding[2][11][:, 0, :]
                     self.songs_features = torch.cat((self.songs_features, song_features), dim=0)
                     if i % 20 == 0:
                         print_current_time("embed " + str(i))
