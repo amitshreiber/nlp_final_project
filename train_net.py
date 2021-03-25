@@ -8,7 +8,7 @@ from handy_function import timeSince,save_model, calculate_accuracy
 
 
 class TrainNet:
-    def __init__(self, train_dataloader, net, optimizer, device, args, val_dataloader=None, save= False):
+    def __init__(self, train_dataloader, net, optimizer, device, args, val_dataloader=None, save= False,  tr_bert_classifer = False ):
 
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
@@ -36,25 +36,39 @@ class TrainNet:
         self.train_acc = [None] *  self.num_epochs
         self.val_acc = [None] *  self.num_epochs
 
-        self.train_net()
+        self.train_net(tr_bert_classifer)
 
-    def train_net(self):
+    def train_net(self, tr_bert_classifer= False):
 
         start = time.time()
         print_current_time("starting to train classifier net")
         epoch_total_train_loss = 0.0  # Reset every epoch
 
         for epoch in range( self.num_epochs):
-            for x_train, y_train in tqdm(self.train_dataloader):
-                self.net.train()
-                x_train, y_train = x_train.to(self.device), y_train.to(self.device)
 
+            for batch in tqdm(self.train_dataloader):
+
+                self.net.train()
                 # zero the parameter gradients
                 self.optimizer.zero_grad()
 
-                # forward + backward + optimize
-                y_train = y_train.squeeze_()
-                y_pred = self.net(x_train)
+                # forward
+
+                if not tr_bert_classifer:
+                    x_train = batch[0]
+                    y_train = batch[1]
+                    x_train,  y_train = x_train.to(self.device), y_train.to(self.device)
+
+                    y_train = y_train.squeeze_()
+
+                    y_pred = self.net(x_train)
+
+
+                else:
+                     y_pred = self.net.embed_and_predict(batch, self.device)
+
+                # backward + optimize
+
                 loss =  self.criterion(y_pred, y_train.long())
                 loss.backward()
                 self.optimizer.step()
@@ -102,14 +116,14 @@ class TrainNet:
             if train:
                 print(f'Epoch #{epoch+1}:\n'
                       f'Train Loss: {self.train_loss[epoch]:.4f}\n'
-                      f'Train accuracy: {self.train_acc[epoch]:.3f}\n'
+                      f'Train accuracy: {self.train_acc[epoch]:.4f}\n'
                       f'Time elapsed (remaining): {timeSince(start, (epoch+1) /  self.num_epochs)}')
 
             else:
 
                 print(f'Epoch #{epoch + 1}:\n'
                       f'Validation Loss: {self.val_loss[epoch]:.4f}\n'
-                      f'Validation accuracy: {self.val_acc[epoch]:.3f}\n' )
+                      f'Validation accuracy: {self.val_acc[epoch]:.4f}\n' )
 
     def early_stopping_check(self, curr_epoch):
         if curr_epoch <  self.early_stop_n :
@@ -145,7 +159,7 @@ class TrainNet:
 
                 if val:
                     val_loss = self.criterion(outputs, labels.long())
-                    epoch_val_loss += val_loss
+                    epoch_val_loss += val_loss.item()
 
         accuracy = correct / total
         epoch_val_avg_loss = epoch_val_loss/len(self.train_dataloader)

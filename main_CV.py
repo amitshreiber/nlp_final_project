@@ -50,10 +50,13 @@ for args in args_comb.args_combs_list:
 
 # train classification net
     classification_nets_params.train_net(device, args, embedding_dataloaders, index)
+    index += 1
 
 
 
-classification_nets_params.sort_params_by_val_acc()
+
+classification_nets_params.parms_to_csv()
+print("finish")
 
 
 # plot figures

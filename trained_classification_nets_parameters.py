@@ -3,6 +3,7 @@ from classification_net import ClassificationNet
 from torch import optim
 from train_net import TrainNet
 import functools
+import pandas as pd
 
 
 
@@ -68,7 +69,14 @@ class TrainedClassificationNetsParams:
 
         net_params_dict = {}
         net_params_dict[index] = {}
-        net_params_dict[index]['args'] = args
+        net_params_dict[index]['p1'] = args.p1
+        net_params_dict[index]['p2'] = args.p2
+        net_params_dict[index]['fc1_output_size'] = args.fc1_output_size
+        net_params_dict[index]['fc2_output_size'] = args.fc2_output_size
+        net_params_dict[index]['batch_size'] = args.tr_batch_size
+        net_params_dict[index]['lr'] = args.lr
+        net_params_dict[index]['weight_decay'] = args.weight_decay
+
         net_params_dict[index]['epoch_before_early_stop'] = epoch_before_early_stop
         net_params_dict[index]['val_acc_value_before_eraly_stop'] =  val_acc_value_before_eraly_stop
         net_params_dict[index]['val_loss_value_before_eraly_stop'] = val_loss_value_before_eraly_stop
@@ -78,6 +86,42 @@ class TrainedClassificationNetsParams:
         net_params_dict[index]['val_acc'] = val_acc
 
         self.trained_nets_params.append(net_params_dict)
+
+    def parms_to_csv(self):
+        # import csv
+        # import itertools
+
+        self.sort_params_by_val_acc()
+
+        # # nested = [
+        # #     {'posts': {'item_1': 1, 'item_2': 8, 'item_3': 105, 'item_4': 324, 'item_5': 313, }},
+        # #     {'edits': {'item_1': 1, 'item_2': 8, 'item_3': 61, 'item_4': 178, 'item_5': 163}},
+        # #     {'views': {'item_1': 2345, 'item_2': 330649, 'item_3': 12920402, 'item_4': 46199102, 'item_5': 43094955}}]
+        data = self.trained_nets_params
+        #
+        #
+        # headings = [(list(d)[0]) for d in nested]
+        # entries = [sorted(nested[index][col].items()) for index, col in enumerate(headings)]
+        #
+        # with open('output.csv', 'wb') as f_output:
+        #     csv_output = csv.writer(f_output)
+        #     headings_str = list (map(str, headings))
+        #
+        #     csv_output.writerow(headings)
+        #
+        #     for cols in itertools.izip_longest(*entries, fillvalue=['<n/a>'] * len(entries[0])):
+        #         csv_output.writerow([cols[0][0]] + [col[1] for col in cols])
+
+        final_df = pd.DataFrame()
+
+        for id in range(0, len(data)):
+            df = pd.DataFrame.from_dict(data[id])
+            final_df = pd.concat([final_df, df], axis=1)
+
+        print(final_df)
+
+        final_df.to_excel('data.xlsx')
+
 
 
 

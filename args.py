@@ -6,7 +6,6 @@ class args:
   def __init__(self):
 
     #NN architecture args
-    self.hidden_dim = 50
     self.input_size = 768
     self.class_number= 19
     self.p1= 0.5
