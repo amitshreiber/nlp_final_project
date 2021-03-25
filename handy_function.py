@@ -3,7 +3,7 @@ import torch
 import math
 import os
 import numpy as np
-from args import FIGURES_DIR, PARAMETERS_DIR
+from directories import FIGURES_DIR, PARAMETERS_DIR
 
 
 

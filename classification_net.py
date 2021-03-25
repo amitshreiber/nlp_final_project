@@ -10,6 +10,8 @@ class ClassificationNet(torch.nn.Module):
         self.fc1 = torch.nn.Linear(args.input_size, args.fc1_output_size)
         self.BN1 = torch.nn.BatchNorm1d( args.fc1_output_size)
         self.p1 = args.p1
+        self.dropout_1 = nn.Dropout(args.p1)
+
         self.fc2 = torch.nn.Linear( args.fc1_output_size, args.fc2_output_size)
         self.BN2 = torch.nn.BatchNorm1d( args.fc2_output_size)
         self.p2 = args.p2

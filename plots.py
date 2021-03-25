@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 from datetime import datetime
 import os
 import numpy as np
-from args import FIGURES_DIR, PARAMETERS_DIR
+from directories import FIGURES_DIR, PARAMETERS_DIR
 
 def plot_accuracies(train_accs, test_accs, model_name):
     current_time = datetime.now().strftime("%Y%m%d-%H%M%S")

@@ -14,7 +14,7 @@ class upload_data_to_dataloader:
 
     def create_dataloader(self):
         train_features, test_features, train_labels, test_labels = train_test_split(self.data, self.labels,
-                                                                                    test_size= self.args.test_ratio,
+                                                                                    test_size= self.args.test_ratio ,
                                                                                     random_state=42)
 
         if self.args.validation_ratio> 0:
