@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from args import *
+from args_CV import *
 
 
 class args_instance:
@@ -57,7 +57,7 @@ class ArgsComb:
 
                                  self.args_combs_list [i] = args
                                  i += 1
-                                 print(i)
+
 
 
 

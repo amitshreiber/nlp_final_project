@@ -25,8 +25,10 @@ class Embedding:
 
             for key, token_song in self.tokenizing_data.items():
                 with torch.no_grad():
+
                     input_ids = token_song.get('input_ids').to(self.device)
                     attention_mask = token_song.get('attention_mask').to(self.device)
+
                     y_embedding = self.bert_model(input_ids=input_ids, token_type_ids=None,
                                                   attention_mask=attention_mask)
                     song_features = y_embedding[0][:, 0, :]
