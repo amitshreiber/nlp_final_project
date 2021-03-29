@@ -25,18 +25,18 @@ class BERTClassifer():
      self.model.cuda()
 
 
-  def embed_and_predict(self,token_songs_batch, device):
-
-     b_input_ids =token_songs_batch[0].to(device)
-     b_input_mask =token_songs_batch[1].to(device)
-     b_labels =token_songs_batch[2].to(device)
-     b_labels =  b_labels.squeeze_()
-
-     loss, logits = self.model(b_input_ids,
-                          token_type_ids=None,
-                          attention_mask=b_input_mask,
-                          labels=b_labels)
-     return(logits)
+  # def embed_and_predict(self,token_songs_batch, device):
+  #
+  #    b_input_ids =token_songs_batch[0].to(device)
+  #    b_input_mask =token_songs_batch[1].to(device)
+  #    b_labels =token_songs_batch[2].to(device)
+  #    b_labels =  b_labels.squeeze_()
+  #
+  #    loss, logits = self.model(b_input_ids,
+  #                         token_type_ids=None,
+  #                         attention_mask=b_input_mask,
+  #                         labels=b_labels)
+  #    return(logits)
 
 
 

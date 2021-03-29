@@ -13,7 +13,7 @@ class TrainNet:
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
         self.optimizer = optimizer
-        self.net = net.to(device)
+        self.net = net
         self.device = device
         self.save = save
         self.use_validation = args.validation_ratio  > 0
@@ -21,12 +21,12 @@ class TrainNet:
         self.criterion = args.criterion
         self.early_stop_n = args.early_stop_n
         self.early_stop_acc_value = args.early_stop_acc_value
+        self.tr_bert_classifer = tr_bert_classifer
+
         self.epoch_before_early_stop = 0
         self.val_acc_value_before_eraly_stop = 0.0
         self.val_loss_value_before_eraly_stop = 0.0
-
-      
-        
+        self.tr_bert_classifer = tr_bert_classifer
 
 
 
@@ -35,6 +35,8 @@ class TrainNet:
 
         self.train_acc = [None] *  self.num_epochs
         self.val_acc = [None] *  self.num_epochs
+
+
 
         self.train_net(tr_bert_classifer)
 
@@ -54,20 +56,11 @@ class TrainNet:
 
                 # forward
 
-                if not tr_bert_classifer:
-                    x_train = batch[0]
-                    y_train = batch[1]
-                    x_train,  y_train = x_train.to(self.device), y_train.to(self.device)
-
-                    y_train = y_train.squeeze_()
-
-                    y_pred = self.net(x_train)
-
-
-                else:
-                     y_pred = self.net.embed_and_predict(batch, self.device)
+                y_pred = self.get_y_pred(batch)
 
                 # backward + optimize
+
+                y_train = self.get_y_train(batch)
 
                 loss =  self.criterion(y_pred, y_train.long())
                 loss.backward()
@@ -165,6 +158,45 @@ class TrainNet:
         epoch_val_avg_loss = epoch_val_loss/len(self.train_dataloader)
 
         return accuracy, epoch_val_avg_loss
+
+    def get_y_pred(self,batch):
+
+        if self.tr_bert_classifer:
+
+            b_input_ids = batch[0].to(self.device).long()
+            b_input_mask = batch[1].to(self.device)
+            b_labels = batch[2].to(self.device)
+            #b_labels = b_labels.squeeze_()
+
+            _, y_pred = self.net(b_input_ids,
+                                 token_type_ids=None,
+                                 attention_mask=b_input_mask,
+                                 labels=b_labels)
+        else:
+            x_train = batch[0]
+            x_train = x_train.to(self.device)
+
+            y_pred = self.net(x_train)
+
+
+        return y_pred
+
+
+
+    def get_y_train(self, batch):
+
+        if self.tr_bert_classifer:
+            y_train = batch[2].to(self.device)
+
+        else:
+            y_train = batch[1].to(self.device)
+
+        y_train = y_train.squeeze_()
+
+        return y_train
+
+
+
 
 
 

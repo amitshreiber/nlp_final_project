@@ -52,7 +52,8 @@ else:
 # train classification net
 if tr_bert_classifer:
 
-    net = BERTClassifer(args, device).model
+    bert_classifer = BERTClassifer(args, device)
+    net = bert_classifer.model
 
 
 else:
@@ -68,7 +69,7 @@ else:
 
 
 training_net = TrainNet(train_dataloader=embedding_dataloaders.tr_dataloader, optimizer=adam_optimizer,
-                                      device=device, net= net,
+                                      device=device, net=   net,
                                       val_dataloader=embedding_dataloaders.val_dataloader,
                                       args= args, tr_bert_classifer = tr_bert_classifer)
 
