@@ -12,7 +12,7 @@ from plots import plot_accuracies, plot_loss
 from directories import ROOT_DIR, PARAMETERS_DIR
 from args import args
 
-tr_bert_classifer =  True
+tr_bert_classifer =  False
 
 # set device to GPU
 print("conda environment:", os.environ['CONDA_DEFAULT_ENV'], "\n \n")

@@ -48,7 +48,7 @@ class TrainNet:
 
         for epoch in range( self.num_epochs):
 
-            for batch in tqdm(self.train_dataloader):
+            for tr_batch in tqdm(self.train_dataloader):
 
                 self.net.train()
                 # zero the parameter gradients
@@ -56,13 +56,14 @@ class TrainNet:
 
                 # forward
 
-                y_pred = self.get_y_pred(batch)
+                loss, y_pred = self.forwad(tr_batch)
 
                 # backward + optimize
 
-                y_train = self.get_y_train(batch)
+                y_train = self.get_labels(tr_batch)
 
-                loss =  self.criterion(y_pred, y_train.long())
+                loss = self.get_loss(loss, y_pred, y_train)
+
                 loss.backward()
                 self.optimizer.step()
 
@@ -141,11 +142,10 @@ class TrainNet:
 
         with torch.no_grad():
 
-            for inputs, labels in tqdm(dataloader):
-                inputs, labels = inputs.to(self.device), labels.to(self.device)
-                labels = labels.squeeze_()
-                outputs = self.net(inputs)
+            for val_batch in tqdm(dataloader):
+                loss,outputs = self.forwad(val_batch)
 
+                labels = self.get_labels(val_batch)
                 current_correct, current_total = calculate_accuracy(outputs, labels)
                 correct += current_correct
                 total += current_total
@@ -159,19 +159,23 @@ class TrainNet:
 
         return accuracy, epoch_val_avg_loss
 
-    def get_y_pred(self,batch):
+    def forwad(self,batch):
+
+        loss = -1
 
         if self.tr_bert_classifer:
 
             b_input_ids = batch[0].to(self.device).long()
             b_input_mask = batch[1].to(self.device)
-            b_labels = batch[2].to(self.device)
+            b_labels = batch[2].to(self.device).long()
             #b_labels = b_labels.squeeze_()
 
-            _, y_pred = self.net(b_input_ids,
+            loss, y_pred = self.net(b_input_ids,
                                  token_type_ids=None,
                                  attention_mask=b_input_mask,
-                                 labels=b_labels)
+                                 labels=b_labels,
+                                 return_dict=False
+                                    )
         else:
             x_train = batch[0]
             x_train = x_train.to(self.device)
@@ -179,21 +183,30 @@ class TrainNet:
             y_pred = self.net(x_train)
 
 
-        return y_pred
+        return loss, y_pred
 
 
 
-    def get_y_train(self, batch):
+    def get_labels(self, batch):
 
         if self.tr_bert_classifer:
-            y_train = batch[2].to(self.device)
+            labels = batch[2].to(self.device)
 
         else:
-            y_train = batch[1].to(self.device)
+            labels = batch[1].to(self.device)
 
-        y_train = y_train.squeeze_()
+        labels = labels.squeeze_()
 
-        return y_train
+        return labels
+
+    def get_loss(self, loss, y_pred, y_train):
+
+        if self.tr_bert_classifer:
+            return loss
+
+        else:
+            loss = self.criterion(y_pred, y_train.long())
+            return loss
 
 
 
