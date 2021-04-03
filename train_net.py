@@ -27,6 +27,9 @@ class TrainNet:
         self.val_acc_value_before_eraly_stop = 0.0
         self.val_loss_value_before_eraly_stop = 0.0
         self.tr_bert_classifer = tr_bert_classifer
+        self.val_best_acc_value = 0.0
+        self.val_best_loss_value = 100000.0
+
 
 
 
@@ -55,15 +58,11 @@ class TrainNet:
                 self.optimizer.zero_grad()
 
                 # forward
-
                 loss, y_pred = self.forwad(tr_batch)
 
                 # backward + optimize
-
                 y_train = self.get_labels(tr_batch)
-
                 loss = self.get_loss(loss, y_pred, y_train)
-
                 loss.backward()
                 self.optimizer.step()
 
@@ -78,6 +77,7 @@ class TrainNet:
             if self.use_validation:
                 # val metrics
                 self.val_acc[epoch], self.val_loss[epoch] = self.evaluate(self.val_dataloader, True)
+                self.update_best_val_loss_acc(self.val_acc[epoch], self.val_loss[epoch] )
                 self.print_metrics(epoch, start, False )
 
 
@@ -165,9 +165,9 @@ class TrainNet:
 
         if self.tr_bert_classifer:
 
-            b_input_ids = batch[0].to(self.device).long()
-            b_input_mask = batch[1].to(self.device)
-            b_labels = batch[2].to(self.device).long()
+            b_input_ids  =  batch[0].to(self.device).long()
+            b_input_mask =  batch[1].to(self.device)
+            b_labels     =  batch[2].to(self.device).long()
             #b_labels = b_labels.squeeze_()
 
             loss, y_pred = self.net(b_input_ids,
@@ -207,6 +207,14 @@ class TrainNet:
         else:
             loss = self.criterion(y_pred, y_train.long())
             return loss
+
+    def update_best_val_loss_acc(self,  last_epoch_acc_value,  last_epoch_loss_value):
+
+        if last_epoch_acc_value > self.val_best_acc_value:
+            self.val_best_acc_value= last_epoch_acc_value
+
+        if last_epoch_loss_value < self.val_best_loss_value:
+            self.val_best_loss_value =  last_epoch_loss_value
 
 
 

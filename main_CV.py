@@ -51,6 +51,10 @@ for args in args_comb.args_combs_list:
 # train classification net
     classification_nets_params.train_net(device, args, embedding_dataloaders, index)
     index += 1
+    if index % 20 == 0:
+        classification_nets_params.parms_to_csv()
+        print(index)
+
 
 
 

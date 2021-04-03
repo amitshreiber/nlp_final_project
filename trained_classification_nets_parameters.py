@@ -34,19 +34,10 @@ class TrainedClassificationNetsParams:
 
                                                        )
             self.save_params(index, args,  training_net.epoch_before_early_stop,  training_net.val_acc_value_before_eraly_stop,
-                             training_net.val_loss_value_before_eraly_stop, training_net.train_loss,
-                             training_net.val_loss,   training_net.train_acc ,  training_net.val_acc)
+                             training_net.val_loss_value_before_eraly_stop,
+                             training_net.val_best_acc_value,   training_net.val_best_loss_value)
 
 
-
-
-
-
-
-
-
-
-     
 
       
     def fitness(self,item):
@@ -64,8 +55,7 @@ class TrainedClassificationNetsParams:
         sorted(self.trained_nets_params, key=functools.cmp_to_key(self.compare))
 
     def save_params(self, index, args, epoch_before_early_stop,  val_acc_value_before_eraly_stop,
-                    val_loss_value_before_eraly_stop, train_loss, val_loss, train_acc,
-                    val_acc):
+                    val_loss_value_before_eraly_stop, val_best_acc_value,  val_best_loss_value ):
 
         net_params_dict = {}
         net_params_dict[index] = {}
@@ -80,37 +70,24 @@ class TrainedClassificationNetsParams:
         net_params_dict[index]['epoch_before_early_stop'] = epoch_before_early_stop
         net_params_dict[index]['val_acc_value_before_eraly_stop'] =  val_acc_value_before_eraly_stop
         net_params_dict[index]['val_loss_value_before_eraly_stop'] = val_loss_value_before_eraly_stop
+        net_params_dict[index]['val_best_acc_value'] =  val_best_acc_value
+        net_params_dict[index]['val_best_loss_value'] = val_best_loss_value
+
         #net_params_dict[index]['train_loss'] = train_loss
-        net_params_dict[index]['val_loss'] = val_loss
+        #net_params_dict[index]['val_loss'] = val_loss
         #net_params_dict[index]['train_acc'] = train_acc
-        net_params_dict[index]['val_acc'] = val_acc
+        #net_params_dict[index]['val_acc'] = val_acc
 
         self.trained_nets_params.append(net_params_dict)
 
     def parms_to_csv(self):
-        # import csv
-        # import itertools
+
 
         self.sort_params_by_val_acc()
 
-        # # nested = [
-        # #     {'posts': {'item_1': 1, 'item_2': 8, 'item_3': 105, 'item_4': 324, 'item_5': 313, }},
-        # #     {'edits': {'item_1': 1, 'item_2': 8, 'item_3': 61, 'item_4': 178, 'item_5': 163}},
-        # #     {'views': {'item_1': 2345, 'item_2': 330649, 'item_3': 12920402, 'item_4': 46199102, 'item_5': 43094955}}]
+
         data = self.trained_nets_params
-        #
-        #
-        # headings = [(list(d)[0]) for d in nested]
-        # entries = [sorted(nested[index][col].items()) for index, col in enumerate(headings)]
-        #
-        # with open('output.csv', 'wb') as f_output:
-        #     csv_output = csv.writer(f_output)
-        #     headings_str = list (map(str, headings))
-        #
-        #     csv_output.writerow(headings)
-        #
-        #     for cols in itertools.izip_longest(*entries, fillvalue=['<n/a>'] * len(entries[0])):
-        #         csv_output.writerow([cols[0][0]] + [col[1] for col in cols])
+
 
         final_df = pd.DataFrame()
 
