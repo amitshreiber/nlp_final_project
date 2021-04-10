@@ -6,7 +6,7 @@ from directories import FIGURES_DIR, PARAMETERS_DIR
 
 def plot_accuracies(train_accs, test_accs, model_name):
     current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(20, 8))
     plt.xlabel('epoch')
     plt.ylabel('accuracy')
     # plt.tight_layout()
@@ -23,12 +23,13 @@ def plot_accuracies(train_accs, test_accs, model_name):
 
 def plot_loss(train_loss, val_loss, model_name):
     current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(20, 8))
     plt.xlabel('epoch')
     plt.ylabel('loss')
     # plt.tight_layout()
     plt.plot(train_loss,  label='training')
     plt.plot(val_loss,   label='validation')
+    plt.legend()
 
     plt.title(f'{model_name} loss')
     plt.xticks(range(len(train_loss)), range(1, len(train_loss) + 1))

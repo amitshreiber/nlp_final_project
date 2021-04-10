@@ -22,7 +22,7 @@ class args:
     self.tr_batch_size =  128
     self.val_batch_size = 128
     self.test_batch_size = 128
-    self.num_epochs = 150
+    self.num_epochs = 40
 
     # NN back propagation args
     self.lr = 0.003

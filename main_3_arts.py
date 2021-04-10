@@ -22,28 +22,29 @@ print(device)
 
 #args
 args = args()
+args.class_number = 3
 
 
 # pre-process data
-data_file = os.path.join(ROOT_DIR, r'data\all_songs_nineteen_artists.csv')
+data_file = os.path.join(ROOT_DIR, r'data\just_3_artist.csv')
 songs_df = PreprocessData(data_file, 512)
 
 # tokenize songs
-tokenizing_path = os.path.join(PARAMETERS_DIR, "all_songs_token.pt")
+tokenizing_path = os.path.join(PARAMETERS_DIR, "songs_five_artists_token.pt")
 song_token = Tokenizing(df_songs= songs_df.filtered_df_songs )
 song_token.tokenize_each_song(tokenizing_path)
 
-if tokenizing_path is None:
-    torch.save(song_token.songs_dict, PARAMETERS_DIR + "\\all_songs_token.pt")
+if  tokenizing_path is None:
+    torch.save(song_token.songs_dict, PARAMETERS_DIR + "\\songs_five_artists_token.pt" )
 
 if not tr_bert_classifer:
     # song embeddings
-    embedding_path = os.path.join(PARAMETERS_DIR, "embedding_all_artist.pt")
+    embedding_path = os.path.join(PARAMETERS_DIR, "embedding_3_artist.pt")
     embedding_songs = Embedding(tokenizing_data=song_token.songs_dict, device=device, embedding_path= embedding_path)
     embedding_songs.data_embedding()
 
     if embedding_songs.embedding_path is None:
-        torch.save(embedding_songs.songs_features,  PARAMETERS_DIR + "\\embedding_all_artist.pt" )
+        torch.save(embedding_songs.songs_features,  PARAMETERS_DIR + "\\embedding_3_artist.pt" )
 
     # create dataloader from embeddings
     embedding_dataloaders = upload_data_to_dataloader(song_token.df_songs, embedding_songs.songs_features, args= args)
@@ -59,7 +60,7 @@ if tr_bert_classifer:
 
 
 else:
-    net = ClassificationNet(args, input_size=args.input_size).to(device)
+    net = ClassificationNet(args).to(device)
 
 LR = args.lr
 WEIGHT_DECAY = args.weight_decay
@@ -95,7 +96,7 @@ args.validation_ratio = 0
 args.early_stop_n = 1000000
 args.num_epochs = trained_net.val_best_acc_epoch
 
-embedding_path = os.path.join(PARAMETERS_DIR, "embedding_all_artist.pt")
+embedding_path = os.path.join(PARAMETERS_DIR, "embedding_3_artist.pt")
 embedding_songs = Embedding(tokenizing_data=song_token.songs_dict, device=device, embedding_path= embedding_path)
 embedding_songs.data_embedding()
 
