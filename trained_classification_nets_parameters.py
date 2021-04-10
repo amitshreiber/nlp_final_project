@@ -33,6 +33,7 @@ class TrainedClassificationNetsParams:
                                                       args= args
 
                                                        )
+
             self.save_params(index, args,  training_net.epoch_before_early_stop,  training_net.val_acc_value_before_eraly_stop,
                              training_net.val_loss_value_before_eraly_stop,
                              training_net.val_best_acc_value,   training_net.val_best_loss_value)

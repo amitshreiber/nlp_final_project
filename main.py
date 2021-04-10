@@ -11,6 +11,7 @@ from torch import optim
 from plots import plot_accuracies, plot_loss
 from directories import ROOT_DIR, PARAMETERS_DIR
 from args import args
+import pickle
 
 tr_bert_classifer =  False
 
@@ -68,12 +69,37 @@ else:
     adam_optimizer = optim.Adam(net.parameters(), lr=LR)
 
 
-training_net = TrainNet(train_dataloader=embedding_dataloaders.tr_dataloader, optimizer=adam_optimizer,
+trained_net = TrainNet(train_dataloader=embedding_dataloaders.tr_dataloader, optimizer=adam_optimizer,
                                       device=device, net=   net,
                                       val_dataloader=embedding_dataloaders.val_dataloader,
                                       args= args, tr_bert_classifer = tr_bert_classifer)
 
-# plot figures
-plot_accuracies(training_net.train_acc, training_net.val_acc, 'all_artists')
-plot_loss(training_net.train_loss, training_net.val_loss, 'all_artists')
+model_result = {'loss': trained_net.train_loss, 'train_acc': trained_net.train_acc, 'test_acc': trained_net.val_acc}
+
+with open(os.path.join(PARAMETERS_DIR, 'bert_not_include_classifer.pkl'), 'wb') as f:
+    pickle.dump(model_result, f)
+
+
+print("best validation accuracy was: ", round(trained_net.val_best_acc_value, 4), "after epoch number: ", trained_net.val_best_acc_epoch)
+print("training final net")
+
+args.validation_ratio = 0
+args.early_stop_n = 1000000
+args.num_epochs = trained_net.val_best_acc_epoch
+
+embedding_path = os.path.join(PARAMETERS_DIR, "embedding_all_artist.pt")
+embedding_songs = Embedding(tokenizing_data=song_token.songs_dict, device=device, embedding_path= embedding_path)
+embedding_songs.data_embedding()
+
+
+final_net = TrainNet(train_dataloader=embedding_dataloaders.tr_dataloader, optimizer=adam_optimizer,
+                                      device=device, net=  net,
+                                      val_dataloader=embedding_dataloaders.test_dataloader,
+                                      args= args, tr_bert_classifer = tr_bert_classifer)
+
+
+
+#plot figures
+# plot_accuracies(training_net.train_acc, training_net.val_acc, 'all_artists')
+# plot_loss(training_net.train_loss, training_net.val_loss, 'all_artists')
 

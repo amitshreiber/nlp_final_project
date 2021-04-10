@@ -42,7 +42,7 @@ classification_nets_params = TrainedClassificationNetsParams()
 index = 0
 args_comb = ArgsComb()
 for args in args_comb.args_combs_list:
-
+   if index > 8649 and args.tr_batch_size<128:
 
     embedding_dataloaders = upload_data_to_dataloader (song_token.df_songs, embedding_songs.songs_features, args)
 
@@ -50,8 +50,8 @@ for args in args_comb.args_combs_list:
 
 # train classification net
     classification_nets_params.train_net(device, args, embedding_dataloaders, index)
-    index += 1
-    if index % 20 == 0:
+   index += 1
+   if index % 50 == 0 and index > 8649 and args.tr_batch_size<128:
         classification_nets_params.parms_to_csv()
         print(index)
 

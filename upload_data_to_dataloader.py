@@ -16,6 +16,8 @@ class upload_data_to_dataloader:
 
         self.create_dataloader(tokenized_data)
 
+
+
     def create_dataloader(self,  tokenized_data):
 
        if  not tokenized_data:
@@ -44,6 +46,10 @@ class upload_data_to_dataloader:
 
         self.tr_dataloader = DataLoader(tr_dataset, batch_size=self.args.tr_batch_size)
 
+        test_dataset = TensorDataset(test_features, torch.from_numpy(test_labels))
+
+        self.test_dataloader = DataLoader(test_dataset, batch_size=self.args.test_batch_size)
+
 
 
     def upload_tokenized_data(self):
@@ -67,6 +73,7 @@ class upload_data_to_dataloader:
         tr_dataset = TensorDataset(train_input_id_data, train_attention_mask_data ,torch.from_numpy(train_labels))
 
         self.tr_dataloader = DataLoader(tr_dataset, batch_size=self.args.tr_batch_size)
+
 
 
 

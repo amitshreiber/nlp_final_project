@@ -33,9 +33,9 @@ VALIDATION_RATIO = 0.2
 TEST_RATIO = 0.2
 
 # NN training args
-TR_BATCH_SIZE =  [32,64,128,256,512]
-VAL_BATCH_SIZE = [32,64,128,256,512]
-NUM_EPOCHS = 10000000
+TR_BATCH_SIZE =  [32,64,128]
+VAL_BATCH_SIZE = [32,64,128]
+NUM_EPOCHS = 1000
 
 # NN back propagation args
 LR =  get_learning_rate()
