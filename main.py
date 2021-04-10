@@ -32,8 +32,8 @@ tokenizing_path = os.path.join(PARAMETERS_DIR, "all_songs_token.pt")
 song_token = Tokenizing(df_songs= songs_df.filtered_df_songs )
 song_token.tokenize_each_song(tokenizing_path)
 
-if  tokenizing_path is None:
-    torch.save(song_token.songs_dict, PARAMETERS_DIR + "\\all_songs_token.pt" )
+if tokenizing_path is None:
+    torch.save(song_token.songs_dict, PARAMETERS_DIR + "\\all_songs_token.pt")
 
 if not tr_bert_classifer:
     # song embeddings
@@ -58,7 +58,7 @@ if tr_bert_classifer:
 
 
 else:
-    net = ClassificationNet(args).to(device)
+    net = ClassificationNet(args, input_size=args.input_size).to(device)
 
 LR = args.lr
 WEIGHT_DECAY = args.weight_decay
