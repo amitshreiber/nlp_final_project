@@ -39,6 +39,15 @@ def calculate_accuracy(outputs, labels):
     return correct, total
 
 
+def top_k_accuracy(outputs, labels, k):
+    top_p, top_class = outputs.topk(k, dim=1)
+    top_class = top_class.t()
+    correct = top_class.eq(labels.view(1, -1).expand_as(top_class))
+    total = labels.size(0)
+    correct_k = correct.float().sum().item()
+    return correct_k, total
+
+
 def asMinutes(s):
     m = math.floor(s / 60)
     s -= m * 60

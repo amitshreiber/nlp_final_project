@@ -4,12 +4,11 @@ from handy_function import print_current_time
 import torch
 import time
 import copy
-from handy_function import timeSince,save_model, calculate_accuracy
-
+from handy_function import timeSince,save_model, calculate_accuracy, top_k_accuracy
 
 
 class TrainNet:
-    def __init__(self, train_dataloader, net, optimizer, device, args, val_dataloader=None, save= False,  tr_bert_classifer = False,use_validation= True ):
+    def __init__(self, train_dataloader, net, optimizer, device, args, val_dataloader=None, save= False,  tr_bert_classifer = False,use_validation= True, k=5 ):
 
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
@@ -24,6 +23,7 @@ class TrainNet:
         self.early_stop_n = args.early_stop_n
         self.early_stop_acc_value = args.early_stop_acc_value
         self.tr_bert_classifer = tr_bert_classifer
+        self.k = k
 
         self.epoch_before_early_stop = 0
         self.val_best_acc_epoch = 0
@@ -40,7 +40,11 @@ class TrainNet:
         self.val_loss = [None] *  self.num_epochs
 
         self.train_acc = [None] *  self.num_epochs
+        self.train_acc_k = [None] * self.num_epochs
+
         self.val_acc = [None] *  self.num_epochs
+        self.val_acc_k = [None] * self.num_epochs
+
 
 
 
@@ -75,11 +79,11 @@ class TrainNet:
             self.train_loss[epoch] = epoch_total_train_loss / len(self.train_dataloader)
             epoch_total_train_loss = 0.0
 
-            self.train_acc[epoch], _ = self.evaluate(self.train_dataloader)
+            self.train_acc[epoch], self.train_acc_k[epoch], _ = self.evaluate(self.train_dataloader)
 
             if self.use_validation:
                 # val metrics
-                self.val_acc[epoch], self.val_loss[epoch] = self.evaluate(self.val_dataloader, True)
+                self.val_acc[epoch], self.val_acc_k[epoch], self.val_loss[epoch] = self.evaluate(self.val_dataloader, True)
                 self.update_best_val_loss_acc(self.val_acc[epoch], self.val_loss[epoch], epoch )
                 self.print_metrics(epoch, start, False )
 
@@ -111,16 +115,18 @@ class TrainNet:
             print("******************************")
 
             if train:
-                print(f'Epoch #{epoch+1}:\n'
+                print(f'Epoch #{epoch + 1}:\n'
                       f'Train Loss: {self.train_loss[epoch]:.4f}\n'
                       f'Train accuracy: {self.train_acc[epoch]:.4f}\n'
-                      f'Time elapsed (remaining): {timeSince(start, (epoch+1) /  self.num_epochs)}')
+                      f'Train k-accuracy: {self.train_acc_k[epoch]:.3f}\n'
+                      f'Time elapsed (remaining): {timeSince(start, (epoch + 1) / self.num_epochs)}')
 
             else:
 
                 print(f'Epoch #{epoch + 1}:\n'
                       f'Validation Loss: {self.val_loss[epoch]:.4f}\n'
-                      f'Validation accuracy: {self.val_acc[epoch]:.4f}\n' )
+                      f'Validation accuracy: {self.val_acc[epoch]:.4f}\n' 
+                      f'Validation k-accuracy: {self.val_acc_k[epoch]:.3f}\n')
 
     def early_stopping_check(self, curr_epoch):
         if curr_epoch <  self.early_stop_n :
@@ -141,6 +147,7 @@ class TrainNet:
         total = 0.0
         correct = 0.0
         epoch_val_loss = 0.0
+        correct_k = 0.0
         self.net.eval()
 
         with torch.no_grad():
@@ -150,6 +157,9 @@ class TrainNet:
 
                 labels = self.get_labels(val_batch)
                 current_correct, current_total = calculate_accuracy(outputs, labels)
+                current_k_correct, _ = top_k_accuracy(outputs, labels, k=self.k)
+
+                correct_k += current_k_correct
                 correct += current_correct
                 total += current_total
 
@@ -158,9 +168,10 @@ class TrainNet:
                     epoch_val_loss += val_loss.item()
 
         accuracy = correct / total
+        k_accuracy = correct_k / total
         epoch_val_avg_loss = epoch_val_loss/len(self.train_dataloader)
 
-        return accuracy, epoch_val_avg_loss
+        return accuracy, k_accuracy, epoch_val_avg_loss
 
     def forwad(self, batch):
 

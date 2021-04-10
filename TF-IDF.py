@@ -152,13 +152,15 @@ if __name__ == '__main__':
     training_net = TrainNet(train_dataloader=tr_dataloader, optimizer=adam_optimizer, device=device, net=net,
                             val_dataloader=test_dataloader, args=args)
 
-    model_result = {'loss': training_net.train_loss, 'train_acc': training_net.train_acc, 'test_acc': training_net.val_acc}
+    model_result = {'loss': training_net.train_loss, 'train_acc': training_net.train_acc, 'test_acc': training_net.val_acc,
+                    'train_acc_k': training_net.train_acc_k, 'test_acc_k': training_net.val_acc_k}
 
     with open(os.path.join(PARAMETERS_DIR, 'tfidf.pkl'), 'wb') as f:
         pickle.dump(model_result, f)
 
     model_result = pickle.load(open(os.path.join(PARAMETERS_DIR, 'x.pkl'), "rb"))
     # plot figures
-    plot_accuracies(model_result['train_acc'], model_result['val_acc'], 'all_artists')
+    plot_accuracies(model_result['train_acc'], model_result['test_acc'], 'TF-IDF')
+    plot_accuracies(model_result['train_acc_k'], model_result['test_acc_k'], 'TF-IDF with 5-Top accuracy')
     plot_loss(training_net.train_loss, training_net.val_loss, 'all_artists')
 
