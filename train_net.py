@@ -110,7 +110,7 @@ class TrainNet:
 
 
     def print_metrics(self, epoch, start, train=True):
-        if epoch % 20 == 0 or epoch == self.num_epochs-1:
+        if epoch % 5 == 0 or epoch == self.num_epochs-1:
             print()
             print("******************************")
 

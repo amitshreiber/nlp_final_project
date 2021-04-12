@@ -74,6 +74,10 @@ class upload_data_to_dataloader:
 
         self.tr_dataloader = DataLoader(tr_dataset, batch_size=self.args.tr_batch_size)
 
+        test_dataset = TensorDataset(test_input_id_data, test_attention_mask_data ,torch.from_numpy(test_labels))
+
+        self.test_dataloader =  DataLoader(test_dataset, batch_size=self.args.tr_batch_size)
+
 
 
 
