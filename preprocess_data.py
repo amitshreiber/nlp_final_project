@@ -18,6 +18,4 @@ class PreprocessData:
 
     def delete_songs_more_n_words(self, max_n_words):
         self.df_songs['words_num'] =   self.df_songs.Lyrics.apply(lambda x: len(str(x).replace("\n"," " ).split(' ')))
-        # from collections import Counter
-        # self.df_songs['words_num'] =self.df_songs['lyrics'].apply(lambda x: Counter(" ".join(x).split(" ")).items())
         self.filtered_df_songs =  self.df_songs[self.df_songs['words_num'] <= max_n_words].reset_index()

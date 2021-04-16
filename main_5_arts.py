@@ -87,8 +87,8 @@ print("best validation accuracy was: ", round(trained_net.val_best_acc_value, 4)
 
 
 #plot figures
-plot_accuracies(trained_net.train_acc, trained_net.val_acc, 'all_artists')
-plot_loss(trained_net.train_loss, trained_net.val_loss, 'all_artists')
+plot_accuracies(trained_net.train_acc, trained_net.val_acc, '5 artists')
+plot_loss(trained_net.train_loss, trained_net.val_loss, '5 artists')
 
 
 

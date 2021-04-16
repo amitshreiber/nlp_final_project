@@ -13,10 +13,6 @@ class TrainedClassificationNetsParams:
         self.trained_nets_params = []
 
 
-
-
-
-
     def train_net(self, device, args, embedding_dataloaders, index):
 
             classification_net = ClassificationNet(args).to(device)
@@ -39,7 +35,6 @@ class TrainedClassificationNetsParams:
                              training_net.val_best_acc_value,   training_net.val_best_loss_value)
 
 
-
       
     def fitness(self,item):
        key = list(item)[0]
@@ -47,13 +42,15 @@ class TrainedClassificationNetsParams:
 
 
 
-
     def compare(self,item1, item2):
          return self.fitness(item1) - self.fitness(item2)
 
 
+
     def sort_params_by_val_acc(self):
         sorted(self.trained_nets_params, key=functools.cmp_to_key(self.compare))
+
+
 
     def save_params(self, index, args, epoch_before_early_stop,  val_acc_value_before_eraly_stop,
                     val_loss_value_before_eraly_stop, val_best_acc_value,  val_best_loss_value ):
@@ -74,21 +71,16 @@ class TrainedClassificationNetsParams:
         net_params_dict[index]['val_best_acc_value'] =  val_best_acc_value
         net_params_dict[index]['val_best_loss_value'] = val_best_loss_value
 
-        #net_params_dict[index]['train_loss'] = train_loss
-        #net_params_dict[index]['val_loss'] = val_loss
-        #net_params_dict[index]['train_acc'] = train_acc
-        #net_params_dict[index]['val_acc'] = val_acc
 
         self.trained_nets_params.append(net_params_dict)
 
-    def parms_to_csv(self):
 
+
+    def parms_to_csv(self):
 
         self.sort_params_by_val_acc()
 
-
         data = self.trained_nets_params
-
 
         final_df = pd.DataFrame()
 

@@ -14,7 +14,6 @@ class TrainNet:
         self.val_dataloader = val_dataloader
         self.optimizer = optimizer
         self.net = net
-        #self.best_net = None
         self.device = device
         self.save = save
         self.use_validation = use_validation
@@ -45,11 +44,10 @@ class TrainNet:
         self.val_acc = [None] *  self.num_epochs
         self.val_acc_k = [None] * self.num_epochs
 
-
-
-
         self.train_net(tr_bert_classifer)
-
+        
+        
+        
     def train_net(self, tr_bert_classifer= False):
 
         start = time.time()
@@ -65,7 +63,7 @@ class TrainNet:
                 self.optimizer.zero_grad()
 
                 # forward
-                loss, y_pred = self.forwad(tr_batch)
+                loss, y_pred = self.forward(tr_batch)
 
                 # backward + optimize
                 y_train = self.get_labels(tr_batch)
@@ -95,14 +93,8 @@ class TrainNet:
                 if self.early_stopping_check(epoch):
                         break
 
-
-
             self.print_metrics(epoch, start)
-            # print(f'Epoch #{epoch}:\n'
-            #       f'Last batch Loss: {loss.item():.4f}\n'
-            #       f'Train accuracy: {epoch_total_train_acc:.3f}\n'
-            #       f'Test accuracy: {test_accuracy:.3f}\n'
-            #       f'Time elapsed (remaining): {timeSince(start, (epoch+1) /  self.num_epochs)}')
+        
 
             if self.save:
                 save_model(self.net, epoch)
@@ -110,6 +102,7 @@ class TrainNet:
 
 
     def print_metrics(self, epoch, start, train=True):
+        
         if epoch % 5 == 0 or epoch == self.num_epochs-1:
             print()
             print("******************************")
@@ -141,7 +134,9 @@ class TrainNet:
 
         print("made early stopping after epoch: ", curr_epoch)
         return True
-
+    
+    
+    
     def evaluate(self, dataloader, val = False):
 
         total = 0.0
@@ -153,7 +148,7 @@ class TrainNet:
         with torch.no_grad():
 
             for val_batch in tqdm(dataloader):
-                loss,outputs = self.forwad(val_batch)
+                loss,outputs = self.forward(val_batch)
 
                 labels = self.get_labels(val_batch)
                 current_correct, current_total = calculate_accuracy(outputs, labels)
@@ -172,8 +167,10 @@ class TrainNet:
         epoch_val_avg_loss = epoch_val_loss/len(self.train_dataloader)
 
         return accuracy, k_accuracy, epoch_val_avg_loss
-
-    def forwad(self, batch):
+    
+    
+    
+    def forward(self, batch):
 
         loss = -1
 
@@ -213,6 +210,7 @@ class TrainNet:
 
         return labels
 
+
     def get_loss(self, loss, y_pred, y_train):
 
         if self.tr_bert_classifer:
@@ -221,6 +219,7 @@ class TrainNet:
         else:
             loss = self.criterion(y_pred, y_train.long())
             return loss
+
 
     def update_best_val_loss_acc(self,  last_epoch_acc_value,  last_epoch_loss_value, epoch):
 
@@ -231,32 +230,6 @@ class TrainNet:
 
         if last_epoch_loss_value < self.val_best_loss_value:
             self.val_best_loss_value =  last_epoch_loss_value
-
-
-    # def predit_test(self, test_dataloader):
-    #
-    #     print_current_time("start to predict test labels")
-    #
-    #     total = 0.0
-    #     correct = 0.0
-    #
-    #     with torch.no_grad():
-    #
-    #             for test_batch in tqdm(test_dataloader):
-    #                 loss, outputs = self.forwad(test_batch)
-    #
-    #                 labels = self.get_labels(test_batch)
-    #                 current_correct, current_total = calculate_accuracy(outputs, labels)
-    #                 correct += current_correct
-    #                 total += current_total
-    #
-    #     print_current_time("finsih to predict test labels")
-    #
-    #     accuracy = round(correct / total, 4)
-    #
-    #     print("the test accuracy value is: ", accuracy)
-    #
-
 
 
 

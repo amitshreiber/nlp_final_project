@@ -3,6 +3,7 @@ from handy_function import print_current_time
 import torch
 
 class Tokenizing:
+
     def __init__(self, df_songs):
         self.df_songs = df_songs
         self.max_embed_batch_len = 512
@@ -10,10 +11,14 @@ class Tokenizing:
         self.tokenizer = None
         self.create_tokenizer_instance()
 
+
+
     def create_tokenizer_instance(self):
         # Load the BERT tokenizer.
         print('Loading BERT tokenizer...')
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
+
+
 
     def tokenizing_batch(self, batch):
         """
@@ -36,7 +41,10 @@ class Tokenizing:
             return_attention_mask=True,  # Construct attn. masks.
             return_tensors='pt'  # Return pytorch tensors.
         )
+
         return encoded_dict
+
+
 
     def tokenize_each_song(self, tokenizing_path=None):
         """
@@ -61,9 +69,5 @@ class Tokenizing:
                 token_batch_lyrics_data['Lyrics'] = batch_lyrics
 
                 self.songs_dict[key] = token_batch_lyrics_data
-
-
-            
-
 
         print_current_time("finished tokenizing process")

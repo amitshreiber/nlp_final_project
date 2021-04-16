@@ -26,6 +26,7 @@ class upload_data_to_dataloader:
             self.upload_tokenized_data()
 
 
+
     def upload_emd_data(self):
 
         train_features, test_features, train_labels, test_labels = train_test_split(self.data, self.labels,
@@ -77,8 +78,6 @@ class upload_data_to_dataloader:
         test_dataset = TensorDataset(test_input_id_data, test_attention_mask_data ,torch.from_numpy(test_labels))
 
         self.test_dataloader =  DataLoader(test_dataset, batch_size=self.args.tr_batch_size)
-
-
 
 
 

@@ -4,6 +4,7 @@ from pytorch_transformers import BertModel
 
 
 class Embedding:
+
     def __init__(self, tokenizing_data, device, embedding_path=None):
         # Load pretrained model/tokenizer
         self.device = device
@@ -12,7 +13,10 @@ class Embedding:
         self.embedding_path = embedding_path
         self.songs_features = torch.tensor([])
 
+
+
     def data_embedding(self):
+
         if self.embedding_path is not None:
             self.songs_features = torch.load(self.embedding_path)
         else:

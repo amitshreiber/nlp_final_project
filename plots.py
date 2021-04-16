@@ -5,6 +5,7 @@ import numpy as np
 from directories import FIGURES_DIR, PARAMETERS_DIR
 
 def plot_accuracies(train_accs, test_accs, model_name):
+
     current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
     plt.figure(figsize=(20, 8))
     plt.xlabel('epoch')
@@ -22,6 +23,7 @@ def plot_accuracies(train_accs, test_accs, model_name):
 
 
 def plot_loss(train_loss, val_loss, model_name):
+
     current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
     plt.figure(figsize=(20, 8))
     plt.xlabel('epoch')
