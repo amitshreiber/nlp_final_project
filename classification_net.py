@@ -6,7 +6,9 @@ import torch.nn.functional as F
 class ClassificationNet(torch.nn.Module):
 
     def __init__(self, args, input_size):
+
         super(ClassificationNet, self).__init__()
+
         self.fc1 = torch.nn.Linear(input_size, args.fc1_output_size)
         self.BN1 = torch.nn.BatchNorm1d( args.fc1_output_size)
         self.p1 = args.p1

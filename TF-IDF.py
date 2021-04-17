@@ -158,7 +158,6 @@ if __name__ == '__main__':
     with open(os.path.join(PARAMETERS_DIR, 'tfidf.pkl'), 'wb') as f:
         pickle.dump(model_result, f)
 
-    model_result = pickle.load(open(os.path.join(PARAMETERS_DIR, 'x.pkl'), "rb"))
     # plot figures
     plot_accuracies(model_result['train_acc'], model_result['test_acc'], 'TF-IDF')
     plot_accuracies(model_result['train_acc_k'], model_result['test_acc_k'], 'TF-IDF with 5-Top accuracy')
